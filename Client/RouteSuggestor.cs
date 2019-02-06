@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Client
 {
-    public class RouteSuggestor
+    public class RouteSuggestor : BaseSuggestor
     {
         private readonly List<List<Orbit>> _possiblePathList;
         private readonly List<Vehicle> _vehicles;
@@ -21,69 +21,35 @@ namespace Client
 
         public void CalculateTimeForEachVehicle()
         {
-            Console.WriteLine("*********Sunny Weather**********");
+            CalculateTimeForWeather(WeatherType.Sunny);
+            CalculateTimeForWeather(WeatherType.Rainy);
+            CalculateTimeForWeather(WeatherType.Windy);
+        }
+
+        private void CalculateTimeForWeather(WeatherType weatherType)
+        {
+            Console.WriteLine("*********" + weatherType.ToString() + " Weather**********");
             foreach (Vehicle vehicle in _vehicles)
             {
-                FastestPath(vehicle, WeatherType.Sunny);
-            }
-            Console.WriteLine("*********Rainy Weather**********");
-            foreach (Vehicle vehicle in _vehicles)
-            {
-                FastestPath(vehicle, WeatherType.Rainy);
-            }
-            Console.WriteLine("*********Windy Weather**********");
-            foreach (Vehicle vehicle in _vehicles)
-            {
-                FastestPath(vehicle, WeatherType.Windy);
+                var res = ShortestPath(vehicle, weatherType, _weatherImpactList, _possiblePathList);
+                PrintOutput(res, vehicle);
             }
         }
 
-        public void FastestPath(Vehicle vehicle,
-            WeatherType weatherType)
+        public void PrintOutput(Dictionary<string, double> value, Vehicle vehicle)
         {
-            Dictionary<string, double> result = new Dictionary<string, double>();
-            if (!vehicle.SupportedWeather.Contains(weatherType))
+            if (value != null && value.Count > 0)
             {
-                Console.WriteLine("Not Supported by {0}", vehicle.Name);
-                return;
-            }
-
-            WeatherImpact wi = _weatherImpactList.FirstOrDefault(a => a.Weather == weatherType);
-
-            foreach (List<Orbit> orbits in _possiblePathList)
-            {
-                double time = 0.0;
-                string path = "";
-                foreach (Orbit orbit in orbits)
+                foreach (var d in value)
                 {
-                    time += TimeToCrossTheOrbit(vehicle, wi, orbit, weatherType).Value;
-                    path = path + "->" + orbit.Name;
+                    Console.WriteLine("By {0},", vehicle.Name);
+                    Console.WriteLine("     {0} minutes - {1}", d.Value, d.Key);
                 }
-                result.Add(path, time);
-            }
-
-            double min = result.Min(a => a.Value);
-            Console.WriteLine("By {0},", vehicle.Name);
-            Console.WriteLine("     {0} minutes - {1}", min, result.FirstOrDefault(a => a.Value == min).Key);
-        }
-
-        public double? TimeToCrossTheOrbit(Vehicle vehicle,
-            WeatherImpact weatherImpact,
-            Orbit orbit,
-            WeatherType weatherType)
-        {
-
-            double time = (orbit.Distance / vehicle.Speed);
-            if (weatherImpact == null)
-            {
-                time = time + (orbit.NumberOfCraters * vehicle.TimeRequiredToCrossCrater);
             }
             else
             {
-                time = time + ((orbit.NumberOfCraters + (orbit.NumberOfCraters * weatherImpact.PercentageChangeInNumberOfCraters / 100))
-                               * vehicle.TimeRequiredToCrossCrater);
+                Console.WriteLine("Not Supported by {0}", vehicle.Name);
             }
-            return time;
         }
     }
 

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Client
 {
-    public class MultiDestinationSuggestor
+    public class MultiDestinationSuggestor : BaseSuggestor
     {
         private readonly Graph _graph;
         private readonly List<Vehicle> _vehicles;
@@ -87,23 +87,5 @@ namespace Client
             Console.WriteLine("     {0} minutes - {1}", totalTime, route);
         }
 
-        public double? TimeToCrossTheOrbit(Vehicle vehicle,
-            WeatherImpact weatherImpact,
-            Orbit orbit,
-            WeatherType weatherType)
-        {
-
-            double time = (orbit.Distance / vehicle.Speed);
-            if (weatherImpact == null)
-            {
-                time = time + (orbit.NumberOfCraters * vehicle.TimeRequiredToCrossCrater);
-            }
-            else
-            {
-                time = time + ((orbit.NumberOfCraters + (orbit.NumberOfCraters * weatherImpact.PercentageChangeInNumberOfCraters / 100))
-                               * vehicle.TimeRequiredToCrossCrater);
-            }
-            return time;
-        }
     }
 }
