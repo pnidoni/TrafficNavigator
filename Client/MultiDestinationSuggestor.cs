@@ -25,22 +25,17 @@ namespace Client
         public void CalculateTimeForEachVehicle()
         {
             Console.WriteLine("*************Output**************");
-            Console.WriteLine("*********Sunny Weather**********");
+            CalculateTimeForWeather(WeatherType.Sunny);
+            CalculateTimeForWeather(WeatherType.Rainy);
+            CalculateTimeForWeather(WeatherType.Windy);
+        }
+
+        private void CalculateTimeForWeather(WeatherType weatherType)
+        {
+            Console.WriteLine("*********" + weatherType.ToString() + " Weather**********");
             foreach (Vehicle vehicle in _vehicles)
             {
-                FastestPath(vehicle, WeatherType.Sunny);
-            }
-            Console.WriteLine();
-            Console.WriteLine("*********Rainy Weather**********");
-            foreach (Vehicle vehicle in _vehicles)
-            {
-                FastestPath(vehicle, WeatherType.Rainy);
-            }
-            Console.WriteLine();
-            Console.WriteLine("*********Windy Weather**********");
-            foreach (Vehicle vehicle in _vehicles)
-            {
-                FastestPath(vehicle, WeatherType.Windy);
+                FastestPath(vehicle, weatherType);
             }
         }
 
@@ -55,24 +50,13 @@ namespace Client
             WeatherImpact wi = _weatherImpactList.FirstOrDefault(a => a.Weather == weatherType);
 
             var source = _destArr[0];
+
             Dictionary<string, double> result = new Dictionary<string, double>();
+
             for (int i = 1; i < _destArr.Length; i++)
             {
-                Dictionary<string, double> intermediateResult = new Dictionary<string, double>();
-                var possibleOrbits = _graph.GetAllPossiblePaths(source, _destArr[i]);
-                foreach (List<Orbit> orbits in possibleOrbits)
-                {
-                    double time = 0.0;
-                    string path = "";
-                    foreach (Orbit orbit in orbits)
-                    {
-                        time += TimeToCrossTheOrbit(vehicle, wi, orbit, weatherType).Value;
-                        path = path + "->" + orbit.Name;
-                    }
-                    intermediateResult.Add(path, time);
-                }
-                double min = intermediateResult.Min(a => a.Value);
-                result.Add(intermediateResult.FirstOrDefault(a => a.Value == min).Key, min);
+                var res = ShortestPath(vehicle, weatherType, _weatherImpactList, _graph.GetAllPossiblePaths(source, _destArr[i]));
+                result.Add(res.First().Key, res.First().Value);
                 source = _destArr[i];
             }
 

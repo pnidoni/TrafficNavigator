@@ -124,67 +124,66 @@ namespace Client
                 }
             };
 
-            Console.WriteLine("Enter Source");
-            var source = Console.ReadLine().Trim();
-
-            Console.WriteLine("Enter Choice");
-            Console.WriteLine("1.Single Destination\t 2.Multiple Destination");
-            var choice = Console.ReadLine().Trim();
-
-            Graph graph = null;
-            bool isValid = false;
-            List<Node> nodes = null;
-            switch (choice)
+            while(true)
             {
-                case "1":
-                    Console.WriteLine("Enter Destination");
-                    var dest = Console.ReadLine().Trim();
-                    Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine("*********************************************");
+                Console.WriteLine("Enter Choice");
+                Console.WriteLine("1.Single Destination\t 2.Multiple Destination");
+                var choice = Console.ReadLine().Trim();
 
-                    graph = new Graph(inputOrbits);
-                    var possiblePaths = graph.GetAllPossiblePaths(source, dest);
+                Graph graph = null;
+                bool isValid = false;
+                List<Node> nodes = null;
+                switch (choice)
+                {
+                    case "1":
+                    
+                        Console.WriteLine("Enter Source");
+                        var source = Console.ReadLine().Trim();
 
-                    nodes = graph.GetNodes(inputOrbits);
-                    List<string> lst = new List<string>(){source, dest};
-                    isValid = lst.All(a => nodes.Any(n => n.Name == a));
+                        Console.WriteLine("Enter Destination");
+                        var dest = Console.ReadLine().Trim();
+                        Console.WriteLine();
 
-                    if (!isValid)
+                        graph = new Graph(inputOrbits);
+                        var possiblePaths = graph.GetAllPossiblePaths(source, dest);
+
+                        nodes = graph.GetNodes(inputOrbits);
+                        List<string> lst = new List<string>(){source, dest};
+                        isValid = lst.All(a => nodes.Any(n => n.Name == a));
+
+                        if (!isValid)
+                            break;
+
+                        RouteSuggestor rs = new RouteSuggestor(possiblePaths, vehicles, impact);
+                        rs.CalculateTimeForEachVehicle();
+
                         break;
 
-                    RouteSuggestor rs = new RouteSuggestor(possiblePaths, vehicles, impact);
-                    rs.CalculateTimeForEachVehicle();
+                    case "2":
+                        Console.WriteLine("Enter the path from source to destination seperated by commas");
+                        Console.WriteLine("e.g A,B,C");
+                        var d = Console.ReadLine().Trim().Split(',');
+                        Console.WriteLine();
 
-                    Console.ReadLine();
+                        graph = new Graph(inputOrbits);
+                        nodes = graph.GetNodes(inputOrbits);
+                        isValid = d.All(a => nodes.Any(n => n.Name == a));
 
-                    break;
+                        if (!isValid)
+                            break;
 
-                case "2":
-                    Console.WriteLine("Enter the path from source to destination seperated by commas");
-                    Console.WriteLine("e.g A,B,C");
-                    var d = Console.ReadLine().Trim().Split(',');
-                    Console.WriteLine();
+                        MultiDestinationSuggestor md = new MultiDestinationSuggestor(graph, vehicles, impact, d);
+                        md.CalculateTimeForEachVehicle();
 
-                    graph = new Graph(inputOrbits);
-                    nodes = graph.GetNodes(inputOrbits);
-                    isValid = d.All(a => nodes.Any(n => n.Name == a));
-
-                    if (!isValid)
                         break;
 
-                    MultiDestinationSuggestor md = new MultiDestinationSuggestor(graph, vehicles, impact, d);
-                    md.CalculateTimeForEachVehicle();
-
-                    Console.ReadLine();
-
-                    break;
-
-                    break;
-
-                default:
-                    break;
+                    default:
+                        break;
+                }
             }
-            
-            Console.ReadLine();
+
         }
 
     }
