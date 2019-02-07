@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Client
 {
@@ -28,7 +27,7 @@ namespace Client
             List<List<Orbit>> possiblePaths = new List<List<Orbit>>();
             foreach (string str in lst)
             {
-                string[] arr = str.Split("->");
+                string[] arr = str.Split(new[]{"->"}, StringSplitOptions.None);
                 var resOrbits = this.inputOrbits.Where(a => arr.Contains(a.Name)).ToList();
                 possiblePaths.Add(resOrbits);
             }
