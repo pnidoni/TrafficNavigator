@@ -132,9 +132,16 @@ namespace Client
                 Console.WriteLine("1.Single Destination\t 2.Multiple Destination");
                 var choice = Console.ReadLine().Trim();
 
-                Graph graph = null;
+                Graph graph = new Graph(inputOrbits);
                 bool isValid = false;
-                List<Node> nodes = null;
+                List<Node> nodes = graph.GetNodes(inputOrbits);
+                System.Console.WriteLine("-----Available nodes------");
+                foreach(var node in nodes)
+                {
+                    Console.WriteLine(node.Name);
+                }
+                Console.WriteLine();
+                
                 switch (choice)
                 {
                     case "1":
@@ -145,16 +152,17 @@ namespace Client
                         Console.WriteLine("Enter Destination");
                         var dest = Console.ReadLine().Trim();
                         Console.WriteLine();
-
-                        graph = new Graph(inputOrbits);
-                        var possiblePaths = graph.GetAllPossiblePaths(source, dest);
-
-                        nodes = graph.GetNodes(inputOrbits);
+                        
                         List<string> lst = new List<string>(){source, dest};
                         isValid = lst.All(a => nodes.Any(n => n.Name == a));
 
                         if (!isValid)
+                        {
+                            System.Console.WriteLine("Please enter valid nodes, node name are case sensitive");
                             break;
+                        }
+
+                        var possiblePaths = graph.GetAllPossiblePaths(source, dest);
 
                         RouteSuggestor rs = new RouteSuggestor(possiblePaths, vehicles, impact);
                         rs.CalculateTimeForEachVehicle();
@@ -167,13 +175,14 @@ namespace Client
                         var d = Console.ReadLine().Trim().Split(',');
                         Console.WriteLine();
 
-                        graph = new Graph(inputOrbits);
-                        nodes = graph.GetNodes(inputOrbits);
                         isValid = d.All(a => nodes.Any(n => n.Name == a));
 
                         if (!isValid)
+                        {
+                            System.Console.WriteLine("Please enter valid nodes, node name are case sensitive");
                             break;
-
+                        }
+                        
                         MultiDestinationSuggestor md = new MultiDestinationSuggestor(graph, vehicles, impact, d);
                         md.CalculateTimeForEachVehicle();
 
